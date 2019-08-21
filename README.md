@@ -10,3 +10,7 @@ Services:
 run serviceB (server) using 'dotnet run'
 
 run serviceA (client) using 'dotnet run {value}'
+
+Based off:  https://github.com/yurishkuro/opentracing-tutorial
+Opentracing: https://opentracing.io
+Jaeger: https://www.jaegertracing.io/
