@@ -40,18 +40,15 @@ namespace JaegerDemo
         public void printResponse(string response)
         {
             using (var scope = tracer.BuildSpan("print-response").StartActive(true))
-            {
-                var client = scope.Span.GetBaggageItem("client");
-                var server = scope.Span.GetBaggageItem("server");
-                var res = scope.Span.GetBaggageItem("response");
-                Console.WriteLine("received response:" + res + " from: " + server);
+            {               
+                Console.WriteLine(response);
                 logger.LogInformation(response);
-                scope.Span.Log("WriteLine");
+                //scope.Span.Log("WriteLine");
             }
         }
 
         // Service A function
-        public void sayHello(string name)
+        public string sayHello(string name)
         {
             // builds onto scope a child span of the current active span
             using (var scope = tracer.BuildSpan("get-response").StartActive(true))
@@ -66,7 +63,8 @@ namespace JaegerDemo
                     webClient.Headers.Add(entry.Key, entry.Value);
 
                 var response = webClient.DownloadString(url);
-                printResponse(response);
+                return response;
+               // printResponse(response);
             }
                 
         }
@@ -80,7 +78,9 @@ namespace JaegerDemo
                 {
                     using (var scope = tracer.BuildSpan("say-hello").StartActive(true))
                     {
-                        new ServiceA(tracer, loggerFactory).sayHello(name);
+                        ServiceA runService = new ServiceA(tracer, loggerFactory);
+                        var res = runService.sayHello(name);
+                        runService.printResponse(res);
                     }
                 }
             }

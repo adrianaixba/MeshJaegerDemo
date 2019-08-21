@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.ServiceProcess;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using OpenTracing;
+using OpenTracing.Propagation;
 
 namespace ServiceB.Controllers
 {
@@ -10,6 +12,7 @@ namespace ServiceB.Controllers
     public class ServiceBController : Controller
     {
         private readonly ITracer tracer;
+        private readonly WebClient webClient = new WebClient();
 
         public ServiceBController(ITracer tracer)
         {
@@ -27,12 +30,13 @@ namespace ServiceB.Controllers
         [HttpGet("{name}", Name = "BuildResponse")]
         public string Get(string name)
         {
+            //var response = ""; 
             using (var scope = tracer.BuildSpan("build-response").StartActive(true))
             {
-                scope.Span.SetBaggageItem("server", "ServiceB");
-                var response = $"Hello, {name}!";
-                scope.Span.SetBaggageItem("response", response);
-                Debug.WriteLine("received request from " + scope.Span.GetBaggageItem("client").ToString());
+                tracer.ActiveSpan.SetBaggageItem("server", "ServiceB");
+                string response = $"Hello, {name}!";
+                tracer.ActiveSpan.SetBaggageItem("response", response);
+                // Debug.WriteLine("received request from " + tracer.ActiveSpan.GetBaggageItem("client").ToString());
                 return response;
             }
         }
